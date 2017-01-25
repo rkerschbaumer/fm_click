@@ -169,7 +169,7 @@ void buchstabensuppe(uint8_t x_coordinate, uint8_t y_coordinate, uint8_t font_wi
 
 void oled_function(UArg arg0){
 	uint8_t i, x_val = 0;
-	char displaystring[] = "Penis", outval[7], frqstring[] = "Frq:", volstring[] = "Vol:",outvol[3];
+	char outval[7], frqstring[] = "Frq:", volstring[] = "Vol:",outvol[3];
 	char modestring[] = "Mode:";
 	uint16_t valtowrite, precomma;
 	uint8_t postcomma;
@@ -179,18 +179,10 @@ void oled_function(UArg arg0){
 	oled_command(0x1D,0x02);                //Set Memory Read/Write mode
     OLED_C_MemorySize(0x00,0x5F,0x00,0x5F);
     DDRAM_access();
-    for(i = 0; i < sizeof(displaystring); i++){
-    	buchstabensuppe(x_val, 0x00, 0x08, 0x0E, 0x0AA0, 0xFF00, displaystring[i]);
-    	x_val += 0x08;
-    }
 
     x_val = 0;
 
     if((enum mb_type)arg0 == frq){
-    	for(i = 0; i < sizeof(frqstring); i++){
-    		 buchstabensuppe(x_val, 0x1E, 0x08, 0x0E, 0x0AA0, 0xFF00, frqstring[i]);
-    	     x_val += 0x08;
-    	 }
 		while(1){
 			pend_mb(&valtowrite, frq);
 			make_frequency_comma_again(valtowrite, &precomma, &postcomma);
@@ -203,10 +195,6 @@ void oled_function(UArg arg0){
 		}
     }
     else if((enum mb_type)arg0 == vol){
-    	 for(i = 0; i < sizeof(volstring); i++){
-    		 buchstabensuppe(x_val, 0x0F, 0x08, 0x0E, 0x0AA0, 0xFF00, volstring[i]);
-    	     x_val += 0x08;
-    	 }
     	while(1){
 			pend_mb(&valtowrite, vol);
 			x_val = sizeof(volstring)*8;
@@ -219,12 +207,22 @@ void oled_function(UArg arg0){
 		}
     }
     else if((enum mb_type)arg0 == mode){
-     	 for(i = 0; i < sizeof(modestring); i++){
-       		 buchstabensuppe(x_val, 0x2D, 0x08, 0x0E, 0x0AA0, 0xFF00, modestring[i]);
-       	     x_val += 0x08;
-       	 }
-     	 System_printf("%s\n", modestring);
-     	 System_flush();
+    	OLED_C_Beckground();
+    	x_val = 0;
+    	for(i = 0; i < sizeof(frqstring); i++){
+    		buchstabensuppe(x_val, 0x1E, 0x08, 0x0E, 0x0AA0, 0xFF00, frqstring[i]);
+    	    x_val += 0x08;
+    	}
+    	x_val = 0;
+    	for(i = 0; i < sizeof(volstring); i++){
+    		buchstabensuppe(x_val, 0x0F, 0x08, 0x0E, 0x0AA0, 0xFF00, volstring[i]);
+    	    x_val += 0x08;
+    	}
+     	x_val = 0;
+    	for(i = 0; i < sizeof(modestring); i++){
+       		buchstabensuppe(x_val, 0x2D, 0x08, 0x0E, 0x0AA0, 0xFF00, modestring[i]);
+       	    x_val += 0x08;
+       	}
        	while(1){
    			pend_mb(&valtowrite, mode);
    			x_val = sizeof(modestring)*8;
@@ -248,9 +246,10 @@ void setup_oled_task(enum mb_type x, int prio, xdc_String name){
     task_params_oled.priority = prio;
     task_params_oled.arg0 = (UArg)x;
     task_hendl_oled = Task_create((Task_FuncPtr)oled_function, &task_params_oled, &eb);
-        if (task_hendl_oled == NULL) {
-            System_abort("Create Oled_task_setup failed");
-        }
+    if (task_hendl_oled == NULL) {
+    	System_abort("Create Oled_task_setup failed");
+    }
+
 }
 
 void spi_write(uint16_t data){

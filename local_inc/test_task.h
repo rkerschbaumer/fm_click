@@ -1,7 +1,7 @@
 /*
  * test_task.h
  *
- *  Created on: 19. Jän. 2017
+ *  Created on: 19. Jï¿½n. 2017
  *      Author: Raphael
  */
 
@@ -12,8 +12,29 @@
 #include <stdint.h>
 #include "xdc/std.h"
 
+/*! \fn make_frequency_comma_again
+ *  \brief splits the frequency to a comma value in MHz
+ *
+ *  parses the frequency (in 100kHz) to a pre- and postcomma value which gives the value in MHz
+ *
+ *  \param input is the 100kHz value
+ *  \param precomma a pointer to where the precomma value is stored
+ *  \param postcomma a pointer to where the postcomma value is stored
+ */
 void make_frequency_comma_again(uint16_t input, uint16_t* precomma, uint8_t* postcomma);
-void test_function(UArg arg0, UArg arg1);
+
+/*! \fn test_function
+ *  \brief Execute test task
+ */
+void test_function(void);
+
+/*! \fn setup_test_Task
+ *  \brief Setup Test task
+ *
+ *  Setup Test task
+ *
+ *  \return always zero. In case of error the system halts.
+ */
 int setup_test_task(void);
 
 
