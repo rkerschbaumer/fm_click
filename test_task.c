@@ -31,7 +31,7 @@
 /* Application headers */
 #include "mb.h"
 
-void test_function(UArg arg0, UArg arg1){
+void test_function(){
 
 	uint16_t outfreq=0, precomma;
 	uint8_t postcomma;
