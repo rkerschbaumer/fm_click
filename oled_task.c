@@ -31,10 +31,9 @@
 #include "mb.h"
 #include "UART_Task.h"
 
-char modes[8][6] = {"TN up", "TN dw", "SK up", "SK dw", "VO up", "VO dw", "FV sv", "FV sl"};
+char modes[9][6] = {"TN up", "TN dw", "SK up", "SK dw", "VO up", "VO dw", "FV sv", "FV sl", "FV us"};
 
 //Send command to OLED C display
-//fixme spi_write umbennen + value und data umbennnen
 void oled_command(unsigned char reg, unsigned char value){
 //Select index addr
     GPIOPinWrite(GPIO_PORTP_BASE, GPIO_PIN_5, 0);
@@ -150,7 +149,6 @@ void OLED_C_Beckground(){
     }
 }
 
-//fixme variablennamen Ã¤ndern
 void buchstabensuppe(uint8_t x_coordinate, uint8_t y_coordinate, uint8_t font_width, uint8_t font_height, uint16_t font_color, uint16_t background_color, char char_to_draw){
 	int i, j;
 	OLED_C_MemorySize(x_coordinate, x_coordinate + font_width - 1, y_coordinate, y_coordinate + font_height - 1);
@@ -226,7 +224,7 @@ void oled_function(UArg arg0){
        	while(1){
    			pend_mb(&valtowrite, mode);
    			x_val = sizeof(modestring)*8;
-   			valtowrite &= 0x0007;
+   			valtowrite &= 0x000F;
    			for(i = 0; i < 6; i++){
    				buchstabensuppe(x_val, 0x2D, 0x08, 0x0E, 0x0AA0, 0xFF00, modes[valtowrite][i]);
    				x_val += 0x08;

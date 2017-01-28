@@ -79,7 +79,7 @@ void i2c_task_fct() {
 	while(true){
 		if(!GPIOPinRead(GPIO_PORTJ_BASE, GPIO_PIN_0)){
 			operating_mode++;
-			if(operating_mode > FAV_SELECT){
+			if(operating_mode > FAV_USE){
 				operating_mode = TUNE_UP;
 			}
 
@@ -92,6 +92,7 @@ void i2c_task_fct() {
 				case VOLUME_DOWN:	set_led_on(VOLUME_DOWN); 	post_mb(VOLUME_DOWN, mode); break;
 				case FAV_SAVE: 		set_led_on(FAV_SAVE); 		post_mb(FAV_SAVE, mode); break;
 				case FAV_SELECT: 	set_led_on(FAV_SELECT); 	post_mb(FAV_SELECT, mode); break;
+				case FAV_USE: 		set_led_on(FAV_USE); 		post_mb(FAV_USE, mode); break;
 				default: 			System_abort("no valid operator.");
 			}
 			Task_sleep(150);
@@ -100,7 +101,6 @@ void i2c_task_fct() {
 		read_register();
 
 		if(!GPIOPinRead(GPIO_PORTJ_BASE, GPIO_PIN_1)){
-			//post_mb(frequency, frq);
 			switch(operating_mode){
 				case TUNE_UP: 		frequency_change(UP); fm_tune(frequency); break;
 				case TUNE_DOWN: 	frequency_change(DOWN); fm_tune(frequency); break;
@@ -110,6 +110,7 @@ void i2c_task_fct() {
 				case VOLUME_DOWN:	change_volume(DOWN); break;
 				case FAV_SAVE: 		do_favourites_stuff(FAV_SAVE); break;
 				case FAV_SELECT:	do_favourites_stuff(FAV_SELECT);  break;
+				case FAV_USE:		do_favourites_stuff(FAV_USE);  break;
 				default: 			System_abort("no valid operator.");
 			}
 		}
@@ -165,12 +166,6 @@ void fm_seek(uint8_t direction){
 
 	do{
 		read_register();
-		/*FIXME  bis doher gehts, dann switcht er wieder auf an anderen channel oasch wenn if unten einkommentiert -> sollte ja eigentlich das komplette Spektrum von 87,5 bis 108 abdecken, hmmm... */
-		/* SF/BL bit set is bad :( EVTL IN MAIN LOOP ABFANGEN!!! */
-//		if((shadow_register[0] && 0x20) == 1 ){
-//			System_printf("no matching Frequency found\n");
-//			break;
-//		}
 		Task_sleep(10);
 	}while((shadow_register[0] && 0x40) != 1 ); //while STC bit (seek/tune) is not set
 
@@ -213,7 +208,7 @@ void fm_tune(uint16_t frequ){
 	Task_sleep(150);
 
 	post_mb(frequ, frq);
-	//post_mb(frequ, frq);
+	post_mb(frequ, frq);
 
 	read_register();
 }
@@ -289,7 +284,7 @@ void change_volume(uint8_t direction){
 }
 void do_favourites_stuff(uint8_t mode){
 	static uint8_t current_amount_of_fav = 0;
-	static uint8_t switcher = 0,i;
+	static uint8_t switcher = 0, switchvar = 0;
 	static uint16_t favourites[MAX_AMOUNT_OF_FAVOURITES];
 
 	if(mode == FAV_SAVE){
@@ -300,22 +295,22 @@ void do_favourites_stuff(uint8_t mode){
 		Task_sleep(150);
 	}
 	else if(mode == FAV_SELECT){
-
-		//while(GPIOPinRead(GPIO_PORTJ_BASE, GPIO_PIN_0) || )
-		if(current_amount_of_fav != 0) post_mb(favourites[switcher], frq);
-		Task_sleep(400);
-		if(!GPIOPinRead(GPIO_PORTJ_BASE, GPIO_PIN_1) && (current_amount_of_fav != 0)){
-			fm_tune(favourites[switcher]);
-			frequency = favourites[switcher];
-			return;
+		if(current_amount_of_fav != 0) {
+			post_mb(favourites[switcher], frq);
+			post_mb(favourites[switcher], frq);
 		}
 		if(switcher < (current_amount_of_fav-1)) switcher++;
 		else switcher = 0;
-		System_printf("switcher:%d, current_amount_of_fav:%d\n", switcher, current_amount_of_fav);
-		for(i=0;i<=current_amount_of_fav;i++){
-			System_printf("sender[%d] = %d\n", i, favourites[i]);
+		Task_sleep(150);
+	}
+	else if(mode == FAV_USE){
+		switchvar = (switcher-1);
+		if(switchvar == 255){
+			switchvar = current_amount_of_fav-1;
 		}
-		System_flush();
+		fm_tune(favourites[switchvar]);
+		frequency = favourites[switchvar];
+		Task_sleep(100);
 	}
 }
 
@@ -343,6 +338,12 @@ void set_led_on(uint8_t ledval){
 		else if(ledval == 7){
 			led_on[1]();
 			led_on[2]();
+		}
+		else if(ledval == 8){
+			led_on[0]();
+			led_on[1]();
+			led_on[2]();
+			led_on[3]();
 		}
 	}
 }

@@ -72,7 +72,6 @@ void init_hardware(void){
 	GPIOPinWrite(GPIO_PORTF_BASE, LED3,0x00);
 	GPIOPinWrite(GPIO_PORTF_BASE, LED4,0x00);
 
-    /* write on the specified pins */
     GPIOPinWrite(GPIO_PORTH_BASE, GPIO_PIN_2, 0xFF);
     GPIOPinWrite(GPIO_PORTD_BASE, GPIO_PIN_0, 0xFF);
     GPIOPinWrite(GPIO_PORTD_BASE, GPIO_PIN_1, 0x00);

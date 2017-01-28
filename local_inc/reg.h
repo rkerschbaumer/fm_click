@@ -38,5 +38,5 @@
 #define VOLUME_DOWN 5
 #define FAV_SAVE 6
 #define FAV_SELECT 7
-
+#define FAV_USE 8
 #endif /* REGISTER_H_ */

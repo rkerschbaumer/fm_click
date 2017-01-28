@@ -58,7 +58,7 @@ int main(void) {
 
 	setup_mb();
 //	setup_test_task();
-//	setup_UART_Task();
+	setup_UART_Task();
 	setup_oled_task(frq, 14, "Frq-Update OLED Task");
 	setup_oled_task(vol, 14, "Vol-Update OLED Task");
 	setup_oled_task(mode, 14, "Mode-Update OLED Task");
